@@ -1,0 +1,32 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.castpdf/castpdf-mcp",
+  "title": "CastPDF",
+  "description": "Create PDFs from your CastPDF templates or HTML, issue EU e-invoices, and look up documents.",
+  "websiteUrl": "https://castpdf.com",
+  "repository": {
+    "url": "https://github.com/castpdf/castpdf-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@castpdf/mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "CASTPDF_API_KEY",
+          "description": "Your CastPDF API key (cpdf_test_... for watermarked test documents, cpdf_live_... for live ones).",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

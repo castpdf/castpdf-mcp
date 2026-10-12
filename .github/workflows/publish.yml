@@ -1,0 +1,70 @@
+# Stages a release of @castpdf/mcp on npm, with a provenance statement, when a version tag is pushed.
+#
+# It does NOT make the version public: it runs `npm stage publish`, and the package owner then approves the staged
+# version on npmjs.com with 2FA. Same flow as the CastPDF n8n node. Listing a new version in the MCP registry is a
+# separate manual step after approval (`mcp-publisher publish`, see PUBLISHING.md).
+#
+# This file only runs when this folder (integrations/mcp in the CastPDF monorepo) is the root of its own public GitHub
+# repository, github.com/castpdf/castpdf-mcp (the "repository" URL in package.json). GitHub ignores workflow files
+# that are not in the repository's top-level .github folder.
+#
+# One-time setup, pick one:
+#   A. Trusted publishing (no secret): on npmjs.com, package settings > Trusted Publishers > GitHub Actions, owner
+#      "castpdf", repository "castpdf-mcp", workflow "publish.yml", allowed to stage publish only.
+#   B. Token: store the stage-only npm token as the repository secret NPM_TOKEN.
+
+name: Stage release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+  workflow_dispatch:
+
+jobs:
+  stage:
+    name: Stage on npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      # needed to mint the OIDC token behind the provenance statement (and trusted publishing)
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Use an npm that has staged publishing (11.15 or newer)
+        run: npm install -g npm@11.16.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Tag matches package.json and server.json
+        if: github.ref_type == 'tag'
+        run: |
+          test "$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+          test "$(node -p "require('./server.json').version")" = "${GITHUB_REF_NAME}"
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Stage the release (approved later on npmjs.com with 2FA)
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"; fi
+          npm stage publish --provenance --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

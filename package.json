@@ -1,0 +1,68 @@
+{
+  "name": "@castpdf/mcp",
+  "version": "0.1.0",
+  "description": "Official CastPDF MCP server: let AI agents list your templates, create PDFs and EU e-invoices, and look up documents.",
+  "license": "MIT",
+  "homepage": "https://castpdf.com/docs/api",
+  "mcpName": "io.github.castpdf/castpdf-mcp",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "castpdf",
+    "pdf",
+    "pdf-generation",
+    "e-invoice",
+    "zugferd",
+    "xrechnung",
+    "ai",
+    "agents"
+  ],
+  "author": {
+    "name": "CastPDF",
+    "email": "support@castpdf.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/castpdf/castpdf-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/castpdf/castpdf-mcp/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "bin": {
+    "castpdf-mcp": "dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "server.json"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}
